@@ -13,11 +13,12 @@ module Phase5
       @params = route_params
       @req = req
 
-      parse_www_encoded_form(req)
+      parse_www_encoded_form(req.query_string || "")
+      parse_www_encoded_form(req.body|| "")
     end
 
     def [](key)
-      @params[key.to_s]
+      @params[key.to_s] || @params[key.to_sym]
     end
 
     # this will be useful if we want to `puts params` in the server log
@@ -34,19 +35,28 @@ module Phase5
     # should return
     # { "user" => { "address" => { "street" => "main", "zip" => "89436" } } }
     def parse_www_encoded_form(www_encoded_form)
-      decoded = URI::decode_www_form(www_encoded_form.query_string)
-      decoded.concat(URI::decode_www_form(www_encoded_form.req))
+      decoded = URI::decode_www_form(www_encoded_form)
 
-      decoded.each do |pair|
-        @params[pair.first.to_s] = pair.last
+      decoded.each do |key, value|
+        keys = parse_key(key)
+        current = @params
+
+        keys.each_with_index do |key_item, idx|
+          current[key_item] ||= {}
+
+          if idx == ((keys.length) - 1)
+            current[key_item] = value
+          else
+            current = current[key_item]
+          end
         end
       end
     end
 
-    # this should return an array
-    # user[address][street] should return ['user', 'address', 'street']
+  # this should return an array
+  # user[address][street] should return ['user', 'address', 'street']
     def parse_key(key)
-      key.gsub!(/\W/," ").split
+      key.split(/\]\[|\[|\]/)
     end
-
+  end
 end
