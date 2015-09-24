@@ -27,6 +27,7 @@ describe "the symphony of things" do
   describe "routes and params" do
     it "route instantiates controller and calls invoke action" do
       route = Phase6::Route.new(Regexp.new("^/statuses/(?<id>\\d+)$"), :get, Ctrlr, :route_render)
+  
       allow(req).to receive(:path) { "/statuses/1" }
       allow(req).to receive(:request_method) { :get }
       route.run(req, res)

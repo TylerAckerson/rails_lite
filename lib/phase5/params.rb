@@ -43,13 +43,13 @@ module Phase5
 
         keys.each_with_index do |key_item, idx|
           current[key_item] ||= {}
-
           if idx == ((keys.length) - 1)
             current[key_item] = value
           else
             current = current[key_item]
           end
         end
+
       end
     end
 
